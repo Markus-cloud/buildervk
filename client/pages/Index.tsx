@@ -131,7 +131,7 @@ export default function Index() {
     "Москва",
     "Санкт-Петербург",
     "Новосибирск",
-    "Екатеринбург",
+    "Екат��ринбург",
     "Нижний Новгород",
     "Казань",
     "Челябинск",
@@ -445,13 +445,39 @@ export default function Index() {
                         <CommandGroup>
                           {cities.length > 0 ? (
                             cities.map((c) => (
-                              <CommandItem key={c.id} value={String(c.id)} onSelect={() => { setCity(c); }}>
+                              <CommandItem
+                                key={c.id}
+                                value={String(c.id)}
+                                onSelect={() => {
+                                  addLog(`Город выбран: ${c.title}`);
+                                  setCity(c);
+                                  setCityQuery("");
+                                }}
+                                onPointerDown={() => {
+                                  addLog(`Город выбран (pointer): ${c.title}`);
+                                  setCity(c);
+                                  setCityQuery("");
+                                }}
+                              >
                                 {c.title}
                               </CommandItem>
                             ))
                           ) : (
                             popularCities.map((name) => (
-                              <CommandItem key={name} value={name} onSelect={() => fetchCityByName(name)}>
+                              <CommandItem
+                                key={name}
+                                value={name}
+                                onSelect={() => {
+                                  addLog(`Популярный город выбран: ${name}`);
+                                  fetchCityByName(name);
+                                  setCityQuery("");
+                                }}
+                                onPointerDown={() => {
+                                  addLog(`Популярный город (pointer): ${name}`);
+                                  fetchCityByName(name);
+                                  setCityQuery("");
+                                }}
+                              >
                                 {name}
                               </CommandItem>
                             ))
@@ -536,7 +562,7 @@ export default function Index() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Отладочная информация (raw)</CardTitle>
+              <CardTitle>Отла��очная информация (raw)</CardTitle>
               <CardDescription>Сырой ответ от сервера /api/vk/search (первый элемент и meta)</CardDescription>
             </CardHeader>
             <CardContent>
@@ -578,7 +604,7 @@ export default function Index() {
           </Card>
         </div>
       </main>
-      <footer className="py-6 text-center text-xs text-muted-foreground">Только для образовательных целей. Соблюдайте правила VK и избегайте спама.</footer>
+      <footer className="py-6 text-center text-xs text-muted-foreground">Только для образовательных целей. Соблюдайте ��равила VK и избегайте спама.</footer>
     </div>
   );
 }
