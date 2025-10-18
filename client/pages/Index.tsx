@@ -241,8 +241,8 @@ export default function Index() {
         nextOffsetRef.current += items.length;
       }
       addLog(`Найдено кандидатов: ${items.length}`);
-      // Log meta for debugging
-      if (data.meta) addLog(`VK meta: ${JSON.stringify(data.meta)}`);
+      // Log VK calls for visibility
+      if (data.meta) addLog(`VK calls: ${data.meta.vk_calls ?? 0}`);
       return items;
     } catch (e: any) {
       addLog(`Ошибка поиска: ${e.message ?? e}`);
@@ -358,7 +358,7 @@ export default function Index() {
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-lg bg-primary text-primary-foreground grid place-items-center font-extrabold">VK</div>
             <div>
-              <h1 className="text-lg font-semibold leading-tight">Автоматизация добавления друзей VK</h1>
+              <h1 className="text-lg font-semibold leading-tight">Автоматизация добавлени�� друзей VK</h1>
               <p className="text-xs text-muted-foreground">Без логина/пароля — только токен. В реальном времени показывает все действия.</p>
             </div>
           </div>
@@ -452,7 +452,7 @@ export default function Index() {
                                 key={c.id}
                                 value={String(c.id)}
                                 onSelect={() => {
-                                  addLog(`Город выбран: ${c.title}`);
+                                  addLog(`Город ��ыбран: ${c.title}`);
                                   setCity(c);
                                   setCityQuery("");
                                 }}
@@ -521,7 +521,7 @@ export default function Index() {
             <CardContent>
               <div className="flex flex-wrap gap-3">
                 <Button onClick={start} disabled={running} className="min-w-28">Старт</Button>
-                <Button onClick={stop} variant="secondary" disabled={!running} className="min-w-28">Сто��</Button>
+                <Button onClick={stop} variant="secondary" disabled={!running} className="min-w-28">Стоп</Button>
               </div>
             </CardContent>
           </Card>
