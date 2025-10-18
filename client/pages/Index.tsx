@@ -457,7 +457,13 @@ export default function Index() {
       setQueueState([...queueRef.current]);
 
       if (!user) {
-        addLog("Нет подходящих кандидатов. Поиск...");
+        addLog("⚠️ Нет подходящих кандидатов. Проверьте фильтры:");
+        if (city) addLog(`  ✓ Город: ${city.title}`);
+        else addLog(`  ⚠️ Город НЕ выбран`);
+        if (minAge) addLog(`  ✓ Мин. возраст: ${minAge}+`);
+        if (minFriends || maxFriends) addLog(`  ✓ Друзья: ${minFriends || 0}-${maxFriends || "∞"}`);
+        if (profession) addLog(`  ✓ Профессия: ${profession}`);
+        if (onlyOnline) addLog(`  ✓ Только онлайн`);
         // Wait a bit and loop — consecutiveEmptyFetches influences next fetch
         await sleep(1500);
         continue;
@@ -505,7 +511,7 @@ export default function Index() {
             <CardHeader>
               <CardTitle>Токен VK API</CardTitle>
               <CardDescription>
-                Вставьте ссылку �� токеном или сам токен — он будет распознан
+                Вставьте ссылку с токеном или сам токен — он будет распознан
                 автоматически.
               </CardDescription>
             </CardHeader>
@@ -595,7 +601,7 @@ export default function Index() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Фильтры поиска</CardTitle>
+              <CardTitle>Фильтры ��оиска</CardTitle>
               <CardDescription>
                 Уточните параметры поиска кандидатов.
               </CardDescription>
@@ -665,7 +671,7 @@ export default function Index() {
                         <div className="px-3 pt-2 text-xs text-muted-foreground">
                           Если нужный город не найден — начните ввод и
                           попробуйте другой вариант написания (например
-                          «Санк��-Петербург», «СПБ»).
+                          «Санкт-Петербург», «СПБ»).
                         </div>
                       </CommandList>
                     </Command>
