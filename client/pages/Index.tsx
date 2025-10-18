@@ -229,11 +229,10 @@ export default function Index() {
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      // Save raw response for debugging
-      try {
-        setRawResponse(data);
-        setRawSample((data.items && data.items[0]) ?? null);
-      } catch (e) {}
+      // accumulate vk_calls
+      if (data.meta && typeof data.meta.vk_calls === 'number') {
+        setVkCalls((v) => v + data.meta.vk_calls);
+      }
       const items = (data.items as VKUser[]) || [];
       // Advance offset using server-provided vk_offset when available to avoid re-scanning same VK pages
       if (data.meta && typeof data.meta.vk_offset === 'number') {
@@ -402,7 +401,7 @@ export default function Index() {
                       <DialogHeader>
                         <DialogTitle>Получение токена (Implicit Flow)</DialogTitle>
                         <DialogDescription>
-                          Введите ID ваш��го VK приложения, выберите пра��а и откройте страницу авторизации. После выдачи токена скопируйте URL из адресной строки.
+                          Введите ID вашего VK приложения, выберите пра��а и откройте страницу авторизации. После выдачи токена скопируйте URL из адресной строки.
                         </DialogDescription>
                       </DialogHeader>
                       <div className="grid gap-3">
@@ -522,7 +521,7 @@ export default function Index() {
             <CardContent>
               <div className="flex flex-wrap gap-3">
                 <Button onClick={start} disabled={running} className="min-w-28">Старт</Button>
-                <Button onClick={stop} variant="secondary" disabled={!running} className="min-w-28">Стоп</Button>
+                <Button onClick={stop} variant="secondary" disabled={!running} className="min-w-28">Сто��</Button>
               </div>
             </CardContent>
           </Card>
