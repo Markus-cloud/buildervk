@@ -126,6 +126,38 @@ export default function Index() {
     return () => clearTimeout(id);
   }, [cityQuery, token, fetchCities]);
 
+  // Popular Russian cities fallback and helper to resolve city id via server
+  const popularCities = [
+    "Москва",
+    "Санкт-Петербург",
+    "Новосибирск",
+    "Екатеринбург",
+    "Нижний Новгород",
+    "Казань",
+    "Челябинск",
+    "Омск",
+    "Самара",
+    "Ростов-на-Дону",
+  ];
+
+  const fetchCityByName = useCallback(async (name: string) => {
+    if (!token) return;
+    try {
+      const res = await fetch(`/api/vk/cities?q=${encodeURIComponent(name)}&country_id=1`, {
+        headers: { "x-vk-token": token },
+      });
+      const data = await res.json();
+      if (data.items && data.items.length) {
+        setCity(data.items[0] as VKCity);
+        addLog(`Город выбран: ${data.items[0].title}`);
+      } else {
+        addLog(`Город не найден: ${name}`);
+      }
+    } catch (e: any) {
+      addLog(`Ошибка поиска города: ${e.message ?? e}`);
+    }
+  }, [token, addLog]);
+
   const effectiveDelay = useMemo(() => {
     const perHourDelay = requestsPerHour > 0 ? Math.floor(3600_000 / requestsPerHour) : 0;
     return Math.max(perHourDelay, extraDelayMs);
@@ -411,12 +443,21 @@ export default function Index() {
                       <CommandList>
                         <CommandEmpty>Ничего не найдено</CommandEmpty>
                         <CommandGroup>
-                          {cities.map((c) => (
-                            <CommandItem key={c.id} value={String(c.id)} onSelect={() => { setCity(c); }}>
-                              {c.title}
-                            </CommandItem>
-                          ))}
+                          {cities.length > 0 ? (
+                            cities.map((c) => (
+                              <CommandItem key={c.id} value={String(c.id)} onSelect={() => { setCity(c); }}>
+                                {c.title}
+                              </CommandItem>
+                            ))
+                          ) : (
+                            popularCities.map((name) => (
+                              <CommandItem key={name} value={name} onSelect={() => fetchCityByName(name)}>
+                                {name}
+                              </CommandItem>
+                            ))
+                          )}
                         </CommandGroup>
+                        <div className="px-3 pt-2 text-xs text-muted-foreground">Если нужный город не найден — начните ввод и попробуйте другой вариант написания (например «Санкт-Петербург», «СПБ»).</div>
                       </CommandList>
                     </Command>
                   </PopoverContent>
