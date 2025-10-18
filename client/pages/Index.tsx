@@ -255,15 +255,18 @@ export default function Index() {
       const age = computeAge(u.bdate);
       if (minAge && age !== null && age < minAge) return false;
       if (onlyOnline && u.online !== 1) return false;
-      const f = u.counters?.friends ?? 0;
-      if (minFriends && f < minFriends) return false;
-      if (maxFriends && f > maxFriends) return false;
+      const f = typeof u.counters?.friends === 'number' ? u.counters!.friends : undefined;
+      if (typeof f === 'number') {
+        if (minFriends && f < minFriends) return false;
+        if (maxFriends && f > maxFriends) return false;
+      }
       if (profession.trim()) {
         const p = profession.trim().toLowerCase();
         const occ = (u.occupation?.name || u.occupation?.type || "").toLowerCase();
         if (!occ.includes(p)) return false;
       }
-      if (u.can_send_friend_request === false) return false;
+      // normalize can_send_friend_request: accept 1/true, reject 0/false
+      if (u.can_send_friend_request === false || u.can_send_friend_request === 0) return false;
       return true;
     },
     [minAge, onlyOnline, minFriends, maxFriends, profession],
