@@ -346,7 +346,10 @@ export default function Index() {
         typeof u.counters?.friends === "number"
           ? u.counters!.friends
           : undefined;
-      if (typeof f === "number") {
+      // If friend count filter is set, enforce it strictly
+      if (minFriends || maxFriends) {
+        // If we don't have friend data, reject
+        if (typeof f !== "number") return false;
         if (minFriends && f < minFriends) return false;
         if (maxFriends && f > maxFriends) return false;
       }
@@ -584,7 +587,7 @@ export default function Index() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Фильтры поиска</CardTitle>
+              <CardTitle>��ильтры поиска</CardTitle>
               <CardDescription>
                 Уточните параметры поиска кандидатов.
               </CardDescription>
