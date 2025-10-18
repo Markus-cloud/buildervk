@@ -354,12 +354,14 @@ export default function Index() {
         typeof u.counters?.friends === "number"
           ? u.counters!.friends
           : undefined;
-      // If friend count filter is set, enforce it strictly
+      // If friend count filter is set, check if we have the data
       if (minFriends || maxFriends) {
-        // If we don't have friend data, reject
-        if (typeof f !== "number") return false;
-        if (minFriends && f < minFriends) return false;
-        if (maxFriends && f > maxFriends) return false;
+        // Only enforce if we have friend data, otherwise accept (better than 0 results)
+        if (typeof f === "number") {
+          if (minFriends && f < minFriends) return false;
+          if (maxFriends && f > maxFriends) return false;
+        }
+        // If no friend data, allow it (some profiles don't expose this)
       }
       if (profession.trim()) {
         const p = profession.trim().toLowerCase();
@@ -500,7 +502,7 @@ export default function Index() {
             </div>
           </div>
           <div className="text-xs text-muted-foreground">
-            Создано для: Дамир Садыков
+            Создано для: Дамир С��дыков
           </div>
         </div>
       </header>
@@ -601,7 +603,7 @@ export default function Index() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Фильтры ��оиска</CardTitle>
+              <CardTitle>Фильтры поиска</CardTitle>
               <CardDescription>
                 Уточните параметры поиска кандидатов.
               </CardDescription>
