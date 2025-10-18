@@ -393,7 +393,7 @@ export default function Index() {
                     <Button type="button" variant="secondary" onClick={pasteFromClipboard}>Вставить из буфера</Button>
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {tokenOk ? "Токен распознан и готов к использованию" : "Токен не распознан"}
+                    {tokenOk ? "Токен ��аспознан и готов к использованию" : "Токен не распознан"}
                   </div>
                 </div>
 
@@ -568,21 +568,16 @@ export default function Index() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="h-[220px]">
             <CardHeader>
-              <CardTitle>Отла��очная информация (raw)</CardTitle>
-              <CardDescription>Сырой ответ от сервера /api/vk/search (первый элемент и meta)</CardDescription>
+              <CardTitle>Статистика</CardTitle>
+              <CardDescription>Краткая статистика работы бота</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="mb-3 text-sm">
-                <div className="font-medium">Meta:</div>
-                <pre className="max-h-24 overflow-auto rounded bg-background/50 p-2 text-xs">{rawResponse ? JSON.stringify(rawResponse.meta ?? {}, null, 2) : "—"}</pre>
-                <div className="font-medium mt-2">First item (raw):</div>
-                <pre className="max-h-40 overflow-auto rounded bg-background/50 p-2 text-xs">{rawSample ? JSON.stringify(rawSample, null, 2) : "—"}</pre>
-                <div className="mt-2 flex gap-2">
-                  <Button variant="secondary" onClick={() => { setRawResponse(null); setRawSample(null); }}>Очистить</Button>
-                  <Button variant="outline" onClick={() => navigator.clipboard.writeText(JSON.stringify(rawResponse ?? {}, null, 2))}>Скопировать ответ</Button>
-                </div>
+              <div className="grid gap-2 text-sm">
+                <div>Успешных заявок: <strong>{successCount}</strong></div>
+                <div>Ошибок: <strong>{errorCount}</strong></div>
+                <div>VK API вызовов: <strong>{vkCalls}</strong></div>
               </div>
             </CardContent>
           </Card>
