@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
-import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -163,7 +162,7 @@ export default function Index() {
         addLog("Попытка извлечения токена из вставленного текста");
       }
     } catch (e: any) {
-      addLog(`Не удалось прочи��ать буфер обмена: ${e.message ?? e}`);
+      addLog(`Не удалось прочитать буфер обмена: ${e.message ?? e}`);
     }
   }, [addLog]);
 
@@ -362,7 +361,7 @@ export default function Index() {
           <Card>
             <CardHeader>
               <CardTitle>Фильтры поиска</CardTitle>
-              <CardDescription>Уточните параметры поиска кандидатов.</CardDescription>
+              <CardDescription>Уточнит�� параметры поиска кандидатов.</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-5">
               <div className="grid gap-2">
@@ -455,7 +454,7 @@ export default function Index() {
               </div>
 
               <div className="grid gap-2">
-                <Label>Доп. задержка между заяв��ами (мс)</Label>
+                <Label>Доп. задержка между заявками (мс)</Label>
                 <Input type="number" value={extraDelayMs} onChange={(e) => setExtraDelayMs(parseInt(e.target.value || "0", 10))} />
                 <div className="text-xs text-muted-foreground">Фактическая задержка: {effectiveDelay} мс</div>
               </div>
