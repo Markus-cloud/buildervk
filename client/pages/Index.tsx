@@ -166,10 +166,11 @@ export default function Index() {
     }
   }, [addLog]);
 
-  const [queue, setQueue] = useState<VKUser[]>([]);
   const nextOffsetRef = useRef(0);
+  const queueRef = useRef<VKUser[]>([]);
+  const [queueState, setQueueState] = useState<VKUser[]>([]);
 
-  const fetchBatch = useCallback(async () => {
+  const fetchBatch = useCallback(async (opts?: { desired_count?: number; max_pages?: number; per_page?: number }) => {
     if (!token) return [] as VKUser[];
     const body: any = {
       city_id: city?.id,
@@ -180,9 +181,9 @@ export default function Index() {
       min_friends: minFriends || undefined,
       max_friends: maxFriends || undefined,
       profession: profession || undefined,
-      desired_count: 50,
-      max_pages: 8,
-      per_page: 50,
+      desired_count: opts?.desired_count ?? 50,
+      max_pages: opts?.max_pages ?? 8,
+      per_page: opts?.per_page ?? 50,
       offset: nextOffsetRef.current,
     };
     try {
@@ -201,7 +202,7 @@ export default function Index() {
       addLog(`Ошибка поиска: ${e.message ?? e}`);
       return [] as VKUser[];
     }
-  }, [token, city?.id, minAge, onlyOnline, addLog]);
+  }, [token, city?.id, minAge, onlyOnline, minFriends, maxFriends, profession, addLog]);
 
   const candidatePasses = useCallback(
     (u: VKUser) => {
@@ -247,7 +248,7 @@ export default function Index() {
 
   const start = useCallback(async () => {
     if (!token) {
-      addLog("Укажите корректный токен VK");
+      addLog("Укажите корректный т��кен VK");
       return;
     }
     setRunning(true);
@@ -410,7 +411,7 @@ export default function Index() {
               <div className="flex items-center justify-between">
                 <div className="grid gap-1">
                   <Label>Только онлайн</Label>
-                  <span className="text-xs text-muted-foreground">Искать только пользователей в сети</span>
+                  <span className="text-xs text-muted-foreground">Иск��ть только пользователей в сети</span>
                 </div>
                 <Switch checked={onlyOnline} onCheckedChange={setOnlyOnline} />
               </div>
@@ -439,7 +440,7 @@ export default function Index() {
             </CardHeader>
             <CardContent className="grid gap-5">
               <div className="grid gap-2">
-                <Label>Количество друзей у кандидата</Label>
+                <Label>Ко��ичество друзей у кандидата</Label>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="grid gap-1">
                     <Label className="text-xs">Минимум</Label>
@@ -486,7 +487,7 @@ export default function Index() {
               </div>
               <div className="mt-3 flex gap-2">
                 <Button variant="secondary" onClick={() => setLogs([])}>Очистить лог</Button>
-                <Button variant="outline" onClick={() => navigator.clipboard.writeText(logs.join("\n"))}>Скопировать</Button>
+                <Button variant="outline" onClick={() => navigator.clipboard.writeText(logs.join("\n"))}>Скопир��вать</Button>
               </div>
             </CardContent>
           </Card>
