@@ -401,7 +401,7 @@ export default function Index() {
 
   const start = useCallback(async () => {
     if (!token) {
-      addLog("Укажите корректный токен VK");
+      addLog("Укажите корр��ктный токен VK");
       return;
     }
     setSuccessCount(0);
@@ -641,7 +641,7 @@ export default function Index() {
                                   }}
                                   onPointerDown={() => {
                                     addLog(
-                                      `Популярный город (pointer): ${name}`,
+                                      `Популярный го��од (pointer): ${name}`,
                                     );
                                     fetchCityByName(name);
                                     setCityQuery("");
@@ -786,12 +786,12 @@ export default function Index() {
             </CardContent>
           </Card>
 
-          <Card className="h-[220px]">
+          <Card className="h-[280px]">
             <CardHeader>
               <CardTitle>Статистика</CardTitle>
               <CardDescription>Краткая статистика работы бота</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex flex-col gap-4">
               <div className="grid gap-2 text-sm">
                 <div>
                   Успешных заявок: <strong>{successCount}</strong>
@@ -802,7 +802,21 @@ export default function Index() {
                 <div>
                   VK API вызовов: <strong>{vkCalls}</strong>
                 </div>
+                <div className="border-t pt-2">
+                  Всего контактировано (все сессии):{" "}
+                  <strong>{sentUserIds.size}</strong>
+                </div>
               </div>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => {
+                  setSentUserIds(new Set());
+                  addLog("История отправленных заявок очищена");
+                }}
+              >
+                Очистить историю контактов
+              </Button>
             </CardContent>
           </Card>
 
