@@ -336,6 +336,9 @@ export default function Index() {
 
   const candidatePasses = useCallback(
     (u: VKUser) => {
+      // Check if we've already sent a friend request to this user
+      if (sentUserIds.has(u.id)) return false;
+
       const age = computeAge(u.bdate);
       if (minAge && age !== null && age < minAge) return false;
       if (onlyOnline && u.online !== 1) return false;
@@ -364,7 +367,7 @@ export default function Index() {
         return false;
       return true;
     },
-    [minAge, onlyOnline, minFriends, maxFriends, profession],
+    [minAge, onlyOnline, minFriends, maxFriends, profession, sentUserIds],
   );
 
   const addFriend = useCallback(
@@ -472,7 +475,7 @@ export default function Index() {
                 Автоматизация добавления друзей VK
               </h1>
               <p className="text-xs text-muted-foreground">
-                Без логин��/пароля — только токен. В реальном времени показывает
+                Без логина/пароля — только токен. В реальном времени показывает
                 все действия.
               </p>
             </div>
@@ -658,7 +661,7 @@ export default function Index() {
               </div>
 
               <div className="grid gap-2">
-                <Label>Минимальный возраст: {minAge}+ </Label>
+                <Label>М��нимальный возраст: {minAge}+ </Label>
                 <Slider
                   value={[minAge]}
                   min={14}
@@ -805,7 +808,7 @@ export default function Index() {
             <CardHeader>
               <CardTitle>Лог действий</CardTitle>
               <CardDescription>
-                Поиск, отправка заявок и ошибки в реальном в��емени.
+                Поиск, отправка заявок и ошибки в реальном времени.
               </CardDescription>
             </CardHeader>
             <CardContent>
