@@ -169,6 +169,8 @@ export default function Index() {
   const nextOffsetRef = useRef(0);
   const queueRef = useRef<VKUser[]>([]);
   const [queueState, setQueueState] = useState<VKUser[]>([]);
+  const [rawResponse, setRawResponse] = useState<any | null>(null);
+  const [rawSample, setRawSample] = useState<any | null>(null);
 
   const fetchBatch = useCallback(async (opts?: { desired_count?: number; max_pages?: number; per_page?: number }) => {
     if (!token) return [] as VKUser[];
@@ -194,6 +196,11 @@ export default function Index() {
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
+      // Save raw response for debugging
+      try {
+        setRawResponse(data);
+        setRawSample((data.items && data.items[0]) ?? null);
+      } catch (e) {}
       const items = (data.items as VKUser[]) || [];
       // Advance offset using server-provided vk_offset when available to avoid re-scanning same VK pages
       if (data.meta && typeof data.meta.vk_offset === 'number') {
@@ -202,6 +209,8 @@ export default function Index() {
         nextOffsetRef.current += items.length;
       }
       addLog(`Найдено кандидатов: ${items.length}`);
+      // Log meta for debugging
+      if (data.meta) addLog(`VK meta: ${JSON.stringify(data.meta)}`);
       return items;
     } catch (e: any) {
       addLog(`Ошибка поиска: ${e.message ?? e}`);
@@ -477,7 +486,7 @@ export default function Index() {
               </div>
 
               <div className="grid gap-2">
-                <Label>Доп. задержка между заявками (мс)</Label>
+                <Label>Доп. задерж��а между заявками (мс)</Label>
                 <Input type="number" value={extraDelayMs} onChange={(e) => setExtraDelayMs(parseInt(e.target.value || "0", 10))} />
                 <div className="text-xs text-muted-foreground">Фактическая задержка: {effectiveDelay} мс</div>
               </div>
