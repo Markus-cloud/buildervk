@@ -110,6 +110,34 @@ export default function Index() {
   const [oauthClientId, setOauthClientId] = useState("");
   const [oauthScopes, setOauthScopes] = useState("friends,offline");
 
+  const [sentUserIds, setSentUserIds] = useState<Set<number>>(new Set());
+
+  // Load sent user IDs from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("vk_bot_sent_users");
+      if (stored) {
+        const ids = JSON.parse(stored);
+        setSentUserIds(new Set(ids));
+        addLog(`Загружено ${ids.length} ранее отправленных заявок`);
+      }
+    } catch (e) {
+      console.error("Failed to load sent user IDs from localStorage:", e);
+    }
+  }, []);
+
+  // Save sent user IDs to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        "vk_bot_sent_users",
+        JSON.stringify(Array.from(sentUserIds)),
+      );
+    } catch (e) {
+      console.error("Failed to save sent user IDs to localStorage:", e);
+    }
+  }, [sentUserIds]);
+
   useEffect(() => {
     const t = parseAccessTokenFromText(tokenInput);
     if (t) {
@@ -444,7 +472,7 @@ export default function Index() {
                 Автоматизация добавления друзей VK
               </h1>
               <p className="text-xs text-muted-foreground">
-                Без логина/пароля — только токен. В реальном времени показывает
+                Без логин��/пароля — только токен. В реальном времени показывает
                 все действия.
               </p>
             </div>
@@ -777,7 +805,7 @@ export default function Index() {
             <CardHeader>
               <CardTitle>Лог действий</CardTitle>
               <CardDescription>
-                Поиск, отправка заявок и ошибки в реальном времени.
+                Поиск, отправка заявок и ошибки в реальном в��емени.
               </CardDescription>
             </CardHeader>
             <CardContent>
