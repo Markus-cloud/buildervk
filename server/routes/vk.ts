@@ -123,20 +123,22 @@ export const searchUsers: RequestHandler = async (req, res) => {
         u.counters && typeof u.counters.friends === "number"
           ? u.counters.friends
           : undefined;
-      // If friend count filter is set and we have friend data, check it strictly
+      // If friend count filter is set, check if we have the data
       if (typeof min_friends === "number" || typeof max_friends === "number") {
-        // If we don't have friend data, reject (can't verify filter)
-        if (typeof friends !== "number") return false;
-        if (
-          typeof min_friends === "number" &&
-          friends < min_friends
-        )
-          return false;
-        if (
-          typeof max_friends === "number" &&
-          friends > max_friends
-        )
-          return false;
+        // Only enforce if we have friend data, otherwise accept (better than 0 results)
+        if (typeof friends === "number") {
+          if (
+            typeof min_friends === "number" &&
+            friends < min_friends
+          )
+            return false;
+          if (
+            typeof max_friends === "number" &&
+            friends > max_friends
+          )
+            return false;
+        }
+        // If no friend data, allow it (some profiles don't expose this)
       }
       if (typeof age_from === "number") {
         const age = ageFromBdate(u.bdate);
