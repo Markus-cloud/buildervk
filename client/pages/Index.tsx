@@ -302,6 +302,9 @@ export default function Index() {
       addLog("Укажите корректный токен VK");
       return;
     }
+    setSuccessCount(0);
+    setErrorCount(0);
+    setVkCalls(0);
     setRunning(true);
     runningRef.current = true;
     addLog("Бот запущен");
