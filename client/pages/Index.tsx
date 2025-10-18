@@ -366,7 +366,7 @@ export default function Index() {
                       <DialogHeader>
                         <DialogTitle>Получение токена (Implicit Flow)</DialogTitle>
                         <DialogDescription>
-                          Введите ID вашего VK приложения, выберите права и откройте страницу авторизации. После выдачи токена скопируйте URL из адресной строки.
+                          Введите ID вашего VK приложения, выберите пра��а и откройте страницу авторизации. После выдачи токена скопируйте URL из адресной строки.
                         </DialogDescription>
                       </DialogHeader>
                       <div className="grid gap-3">
@@ -436,7 +436,7 @@ export default function Index() {
               <div className="flex items-center justify-between">
                 <div className="grid gap-1">
                   <Label>Только онлайн</Label>
-                  <span className="text-xs text-muted-foreground">Искать только пользователей в сети</span>
+                  <span className="text-xs text-muted-foreground">Искать только пользователей �� сети</span>
                 </div>
                 <Switch checked={onlyOnline} onCheckedChange={setOnlyOnline} />
               </div>
@@ -465,7 +465,7 @@ export default function Index() {
             </CardHeader>
             <CardContent className="grid gap-5">
               <div className="grid gap-2">
-                <Label>Количество друзей у кандидата</Label>
+                <Label>Количество друзей у кандида��а</Label>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="grid gap-1">
                     <Label className="text-xs">Минимум</Label>
@@ -489,6 +489,25 @@ export default function Index() {
                 <Label>Доп. задерж��а между заявками (мс)</Label>
                 <Input type="number" value={extraDelayMs} onChange={(e) => setExtraDelayMs(parseInt(e.target.value || "0", 10))} />
                 <div className="text-xs text-muted-foreground">Фактическая задержка: {effectiveDelay} мс</div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Отладочная информация (raw)</CardTitle>
+              <CardDescription>Сырой ответ от сервера /api/vk/search (первый элемент и meta)</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-3 text-sm">
+                <div className="font-medium">Meta:</div>
+                <pre className="max-h-24 overflow-auto rounded bg-background/50 p-2 text-xs">{rawResponse ? JSON.stringify(rawResponse.meta ?? {}, null, 2) : "—"}</pre>
+                <div className="font-medium mt-2">First item (raw):</div>
+                <pre className="max-h-40 overflow-auto rounded bg-background/50 p-2 text-xs">{rawSample ? JSON.stringify(rawSample, null, 2) : "—"}</pre>
+                <div className="mt-2 flex gap-2">
+                  <Button variant="secondary" onClick={() => { setRawResponse(null); setRawSample(null); }}>Очистить</Button>
+                  <Button variant="outline" onClick={() => navigator.clipboard.writeText(JSON.stringify(rawResponse ?? {}, null, 2))}>Скопировать ответ</Button>
+                </div>
               </div>
             </CardContent>
           </Card>
