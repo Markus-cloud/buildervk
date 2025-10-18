@@ -384,6 +384,8 @@ export default function Index() {
         addLog(
           `Заявка отправлена: ${user.first_name} ${user.last_name} (id${user.id})`,
         );
+        // Mark this user as sent so we don't contact them again in future sessions
+        setSentUserIds((prev) => new Set([...prev, user.id]));
         setSuccessCount((s) => s + 1);
         return true;
       } catch (e: any) {
@@ -661,7 +663,7 @@ export default function Index() {
               </div>
 
               <div className="grid gap-2">
-                <Label>М��нимальный возраст: {minAge}+ </Label>
+                <Label>Минимальный возраст: {minAge}+ </Label>
                 <Slider
                   value={[minAge]}
                   min={14}
