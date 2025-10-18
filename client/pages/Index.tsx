@@ -284,9 +284,11 @@ export default function Index() {
         const data = await res.json();
         if (data.error) throw new Error(data.error);
         addLog(`Заявка отправлена: ${user.first_name} ${user.last_name} (id${user.id})`);
+        setSuccessCount((s) => s + 1);
         return true;
       } catch (e: any) {
         addLog(`Ошибка отправки заявки id${user.id}: ${e.message ?? e}`);
+        setErrorCount((s) => s + 1);
         return false;
       }
     },
@@ -358,7 +360,7 @@ export default function Index() {
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-lg bg-primary text-primary-foreground grid place-items-center font-extrabold">VK</div>
             <div>
-              <h1 className="text-lg font-semibold leading-tight">Автоматизация добавлени�� друзей VK</h1>
+              <h1 className="text-lg font-semibold leading-tight">Автоматизация добавления друзей VK</h1>
               <p className="text-xs text-muted-foreground">Без логина/пароля — только токен. В реальном времени показывает все действия.</p>
             </div>
           </div>
@@ -452,7 +454,7 @@ export default function Index() {
                                 key={c.id}
                                 value={String(c.id)}
                                 onSelect={() => {
-                                  addLog(`Город ��ыбран: ${c.title}`);
+                                  addLog(`Город выбран: ${c.title}`);
                                   setCity(c);
                                   setCityQuery("");
                                 }}
