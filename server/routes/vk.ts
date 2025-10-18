@@ -77,6 +77,7 @@ export const searchUsers: RequestHandler = async (req, res) => {
     };
 
     const collected: any[] = [];
+    const rawSamples: any[] = [];
     // Use client-provided VK offset to continue scanning where client left off
     let offset = Number((req.body && (req.body.offset as number)) ?? 0);
     let calls = 0;
@@ -137,6 +138,11 @@ export const searchUsers: RequestHandler = async (req, res) => {
       const items = response.items ?? [];
       if (!items.length) break;
 
+      // collect some raw samples for debugging (unfiltered)
+      for (const it of items) {
+        if (rawSamples.length < 3) rawSamples.push(it);
+      }
+
       for (const it of items) {
         if (passesFilters(it)) {
           collected.push(it);
@@ -149,7 +155,7 @@ export const searchUsers: RequestHandler = async (req, res) => {
       if (items.length < per_page) break;
     }
 
-    res.json({ items: collected, count: collected.length, meta: { vk_calls: calls, vk_offset: offset } });
+    res.json({ items: collected, count: collected.length, meta: { vk_calls: calls, vk_offset: offset, raw_samples: rawSamples.slice(0,3) } });
   } catch (err: any) {
     res.status(400).json({ error: err.message ?? String(err) });
   }
