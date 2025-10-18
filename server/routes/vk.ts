@@ -221,6 +221,21 @@ export const searchUsers: RequestHandler = async (req, res) => {
             if (passesFilters(det)) {
               collected.push(det);
               if (collected.length >= desired_count) break;
+            } else {
+              // Log why this user was rejected (for debugging)
+              const reasons = [];
+              if (online && det.online !== 1) reasons.push("not_online");
+              if (det.can_send_friend_request === false) reasons.push("cant_send_request");
+              const friends = det.counters?.friends;
+              if (typeof friends === "number") {
+                if (typeof min_friends === "number" && friends < min_friends) reasons.push(`friends<${min_friends}`);
+                if (typeof max_friends === "number" && friends > max_friends) reasons.push(`friends>${max_friends}`);
+              } else {
+                if (typeof min_friends === "number" || typeof max_friends === "number") reasons.push("no_friends_data");
+              }
+              if (rawSamples.length < 5) {
+                rawSamples.push({...det, _rejected_reasons: reasons});
+              }
             }
           }
         } else {
