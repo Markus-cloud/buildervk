@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -444,7 +444,7 @@ export default function Index() {
                 Автоматизация добавления друзей VK
               </h1>
               <p className="text-xs text-muted-foreground">
-                Без логина/пароля — только токен. В реальном времен�� показывает
+                Без логина/пароля — только токен. В реальном времени показывает
                 все действия.
               </p>
             </div>
@@ -505,7 +505,7 @@ export default function Index() {
                           Получение токена (Implicit Flow)
                         </DialogTitle>
                         <DialogDescription>
-                          Введите ID вашего VK приложения, выберите пра��а и
+                          Введите ID вашего VK приложения, выберите права и
                           откройте страницу авторизации. После выдачи токена
                           скопируйте URL из адресной строки.
                         </DialogDescription>
@@ -514,7 +514,7 @@ export default function Index() {
                         <div className="grid gap-2">
                           <Label>Client ID (ID приложения VK)</Label>
                           <Input
-                            placeholder="Напри��ер: 1234567"
+                            placeholder="Например: 1234567"
                             value={oauthClientId}
                             onChange={(e) => setOauthClientId(e.target.value)}
                           />
@@ -646,7 +646,7 @@ export default function Index() {
                 </Label>
                 <Input
                   id="profession"
-                  placeholder="на��ример: дизайнер"
+                  placeholder="например: дизайнер"
                   value={profession}
                   onChange={(e) => setProfession(e.target.value)}
                 />
@@ -656,7 +656,7 @@ export default function Index() {
                 <div className="grid gap-1">
                   <Label>Только онлайн</Label>
                   <span className="text-xs text-muted-foreground">
-                    Искать только пользователей �� сети
+                    Искать только пользователей в сети
                   </span>
                 </div>
                 <Switch checked={onlyOnline} onCheckedChange={setOnlyOnline} />
@@ -813,7 +813,7 @@ export default function Index() {
         </div>
       </main>
       <footer className="py-6 text-center text-xs text-muted-foreground">
-        Только для образовательных целей. Соблюдайте ��равила VK и избегайте
+        Только для образовательных целей. Соблюдайте правила VK и избегайте
         спама.
       </footer>
     </div>
