@@ -248,34 +248,45 @@ export default function Index() {
 
   const start = useCallback(async () => {
     if (!token) {
-      addLog("Укажите корректный т��кен VK");
+      addLog("Укажите корректный токен VK");
       return;
     }
     setRunning(true);
     runningRef.current = true;
     addLog("Бот запущен");
 
+    const consecutiveEmptyFetches = { current: 0 };
+
     while (runningRef.current) {
-      if (queue.length < 5) {
-        const batch = await fetchBatch();
-        const filtered = batch.filter(candidatePasses);
-        setQueue((q) => [...q, ...filtered]);
+      // Refill queue synchronously using queueRef
+      if (queueRef.current.length < 5) {
+        // If we've had several empty fetches, widen search parameters
+        let items: VKUser[] = [];
+        if (consecutiveEmptyFetches.current >= 3) {
+          addLog("Мало кандидатов — расширяю поиск (временно увеличиваю страницы/количество)");
+          items = await fetchBatch({ desired_count: 100, max_pages: 20, per_page: 100 });
+        } else {
+          items = await fetchBatch();
+        }
+
+        const filtered = items.filter(candidatePasses);
+        if (filtered.length > 0) {
+          consecutiveEmptyFetches.current = 0;
+          queueRef.current.push(...filtered);
+          setQueueState([...queueRef.current]);
+        } else {
+          consecutiveEmptyFetches.current++;
+        }
       }
 
-      const next = () => {
-        let picked: VKUser | undefined;
-        setQueue((q) => {
-          const copy = [...q];
-          picked = copy.shift();
-          return copy;
-        });
-        return picked;
-      };
+      // Pop next candidate synchronously
+      const user = queueRef.current.shift();
+      setQueueState([...queueRef.current]);
 
-      const user = next();
       if (!user) {
         addLog("Нет подходящих кандидатов. Поиск...");
-        await sleep(1000);
+        // Wait a bit and loop — consecutiveEmptyFetches influences next fetch
+        await sleep(1500);
         continue;
       }
 
@@ -284,7 +295,7 @@ export default function Index() {
     }
 
     addLog("Бот остановлен");
-  }, [token, addLog, queue.length, fetchBatch, candidatePasses, addFriend, effectiveDelay]);
+  }, [token, addLog, fetchBatch, candidatePasses, addFriend, effectiveDelay]);
 
   const stop = useCallback(() => {
     runningRef.current = false;
@@ -311,7 +322,7 @@ export default function Index() {
           <Card>
             <CardHeader>
               <CardTitle>Токен VK API</CardTitle>
-              <CardDescription>Вставьте ссылку с токеном или сам токен — он будет распознан автоматически.</CardDescription>
+              <CardDescription>Вставьте ссылку с токеном или сам то��ен — он будет распознан автоматически.</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-3">
@@ -411,7 +422,7 @@ export default function Index() {
               <div className="flex items-center justify-between">
                 <div className="grid gap-1">
                   <Label>Только онлайн</Label>
-                  <span className="text-xs text-muted-foreground">Иск��ть только пользователей в сети</span>
+                  <span className="text-xs text-muted-foreground">Искать только пользователей в сети</span>
                 </div>
                 <Switch checked={onlyOnline} onCheckedChange={setOnlyOnline} />
               </div>
@@ -440,7 +451,7 @@ export default function Index() {
             </CardHeader>
             <CardContent className="grid gap-5">
               <div className="grid gap-2">
-                <Label>Ко��ичество друзей у кандидата</Label>
+                <Label>Количество друзей у кандидата</Label>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="grid gap-1">
                     <Label className="text-xs">Минимум</Label>
@@ -487,7 +498,7 @@ export default function Index() {
               </div>
               <div className="mt-3 flex gap-2">
                 <Button variant="secondary" onClick={() => setLogs([])}>Очистить лог</Button>
-                <Button variant="outline" onClick={() => navigator.clipboard.writeText(logs.join("\n"))}>Скопир��вать</Button>
+                <Button variant="outline" onClick={() => navigator.clipboard.writeText(logs.join("\n"))}>Скопировать</Button>
               </div>
             </CardContent>
           </Card>
