@@ -176,7 +176,13 @@ export default function Index() {
       age_from: minAge || undefined,
       q: undefined as string | undefined,
       online: onlyOnline,
-      count: 50,
+      // server-side filters to avoid endless non-matching searches
+      min_friends: minFriends || undefined,
+      max_friends: maxFriends || undefined,
+      profession: profession || undefined,
+      desired_count: 50,
+      max_pages: 8,
+      per_page: 50,
       offset: nextOffsetRef.current,
     };
     try {
@@ -361,7 +367,7 @@ export default function Index() {
           <Card>
             <CardHeader>
               <CardTitle>Фильтры поиска</CardTitle>
-              <CardDescription>Уточнит�� параметры поиска кандидатов.</CardDescription>
+              <CardDescription>Уточните параметры поиска кандидатов.</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-5">
               <div className="grid gap-2">
@@ -398,7 +404,7 @@ export default function Index() {
 
               <div className="grid gap-2">
                 <Label htmlFor="profession">Профессия (поиск по Occupation)</Label>
-                <Input id="profession" placeholder="например: дизайнер" value={profession} onChange={(e) => setProfession(e.target.value)} />
+                <Input id="profession" placeholder="на��ример: дизайнер" value={profession} onChange={(e) => setProfession(e.target.value)} />
               </div>
 
               <div className="flex items-center justify-between">
