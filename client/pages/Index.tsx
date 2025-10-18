@@ -316,6 +316,14 @@ export default function Index() {
         addLog(`Найдено кандидатов: ${items.length}`);
         // Log VK calls for visibility
         if (data.meta) addLog(`VK calls: ${data.meta.vk_calls ?? 0}`);
+        // Log debug info about rejected samples
+        if (data.meta?.raw_samples && data.meta.raw_samples.length > 0) {
+          const sample = data.meta.raw_samples[0];
+          const reasons = (sample as any)?._rejected_reasons || [];
+          if (reasons.length > 0) {
+            addLog(`🔍 Отклонены: ${sample.first_name} ${sample.last_name} (${reasons.join(", ")})`);
+          }
+        }
         return items;
       } catch (e: any) {
         addLog(`Ошибка поиска: ${e.message ?? e}`);
@@ -497,7 +505,7 @@ export default function Index() {
             <CardHeader>
               <CardTitle>Токен VK API</CardTitle>
               <CardDescription>
-                Вставьте ссылку с токеном или сам токен — он будет распознан
+                Вставьте ссылку �� токеном или сам токен — он будет распознан
                 автоматически.
               </CardDescription>
             </CardHeader>
@@ -587,7 +595,7 @@ export default function Index() {
 
           <Card>
             <CardHeader>
-              <CardTitle>��ильтры поиска</CardTitle>
+              <CardTitle>Фильтры поиска</CardTitle>
               <CardDescription>
                 Уточните параметры поиска кандидатов.
               </CardDescription>
@@ -657,7 +665,7 @@ export default function Index() {
                         <div className="px-3 pt-2 text-xs text-muted-foreground">
                           Если нужный город не найден — начните ввод и
                           попробуйте другой вариант написания (например
-                          «Санкт-Петербург», «СПБ»).
+                          «Санк��-Петербург», «СПБ»).
                         </div>
                       </CommandList>
                     </Command>
