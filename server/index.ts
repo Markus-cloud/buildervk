@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
+import { addFriend, getCities, searchUsers } from "./routes/vk";
 
 export function createServer() {
   const app = express();
@@ -18,6 +19,11 @@ export function createServer() {
   });
 
   app.get("/api/demo", handleDemo);
+
+  // VK proxy routes
+  app.get("/api/vk/cities", getCities);
+  app.post("/api/vk/search", searchUsers);
+  app.post("/api/vk/add-friend", addFriend);
 
   return app;
 }
