@@ -93,12 +93,23 @@ export const searchUsers: RequestHandler = async (req, res) => {
       return age;
     }
 
+    function normalize(detail: any) {
+      // Ensure consistent types
+      const normalized: any = { ...detail };
+      if (typeof normalized.can_send_friend_request === 'number') normalized.can_send_friend_request = normalized.can_send_friend_request === 1;
+      normalized.can_send_friend_request = !!normalized.can_send_friend_request;
+      if (typeof normalized.online === 'number') normalized.online = normalized.online === 1 ? 1 : 0;
+      normalized.counters = normalized.counters || {};
+      return normalized;
+    }
+
     function passesFilters(u: any) {
       if (online && u.online !== 1) return false;
       if (u.can_send_friend_request === false) return false;
-      const friends = u.counters?.friends ?? 0;
-      if (typeof min_friends === 'number' && friends < min_friends) return false;
-      if (typeof max_friends === 'number' && friends > max_friends) return false;
+      const friends = (u.counters && typeof u.counters.friends === 'number') ? u.counters.friends : undefined;
+      if (typeof min_friends === 'number' && typeof friends === 'number' && friends < min_friends) return false;
+      if (typeof max_friends === 'number' && typeof friends === 'number' && friends > max_friends) return false;
+      // If friend counters are missing, treat as unknown and allow (do not reject)
       if (typeof age_from === 'number') {
         const age = ageFromBdate(u.bdate);
         if (age !== null && age < age_from) return false;
@@ -111,7 +122,6 @@ export const searchUsers: RequestHandler = async (req, res) => {
     }
 
     for (let page = 0; page < Math.max(1, max_pages) && collected.length < desired_count; page++) {
-      const toFetch = Math.min(per_page, desired_count - collected.length);
       const response = await vkCall(
         'users.search',
         {
@@ -143,10 +153,39 @@ export const searchUsers: RequestHandler = async (req, res) => {
         if (rawSamples.length < 3) rawSamples.push(it);
       }
 
-      for (const it of items) {
-        if (passesFilters(it)) {
-          collected.push(it);
-          if (collected.length >= desired_count) break;
+      // Enrich with users.get to get reliable counters / can_send_friend_request etc.
+      try {
+        const ids = items.map((i: any) => i.id).filter(Boolean);
+        if (ids.length) {
+          const details = await vkCall('users.get', { user_ids: ids.join(','), fields: ['counters','occupation','online','can_send_friend_request','is_closed','can_access_closed','bdate','city','online_app'].join(',') }, token);
+          const detailsArr = Array.isArray(details) ? details : [];
+          const byId = new Map(detailsArr.map((d: any) => [d.id, normalize(d)]));
+
+          for (const it of items) {
+            const det = byId.get(it.id) || normalize(it);
+            if (passesFilters(det)) {
+              collected.push(det);
+              if (collected.length >= desired_count) break;
+            }
+          }
+        } else {
+          // fallback to items as-is
+          for (const it of items) {
+            const det = normalize(it);
+            if (passesFilters(det)) {
+              collected.push(det);
+              if (collected.length >= desired_count) break;
+            }
+          }
+        }
+      } catch (e) {
+        // if enrichment fails, fallback to filtering raw items but normalize
+        for (const it of items) {
+          const det = normalize(it);
+          if (passesFilters(det)) {
+            collected.push(det);
+            if (collected.length >= desired_count) break;
+          }
         }
       }
 
