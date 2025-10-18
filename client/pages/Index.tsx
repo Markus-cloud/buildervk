@@ -131,7 +131,7 @@ export default function Index() {
     "Москва",
     "Санкт-Петербург",
     "Новосибирск",
-    "Екат��ринбург",
+    "Екатеринбург",
     "Нижний Новгород",
     "Казань",
     "Челябинск",
@@ -364,7 +364,7 @@ export default function Index() {
             <div className="h-9 w-9 rounded-lg bg-primary text-primary-foreground grid place-items-center font-extrabold">VK</div>
             <div>
               <h1 className="text-lg font-semibold leading-tight">Автоматизация добавления друзей VK</h1>
-              <p className="text-xs text-muted-foreground">Без логина/пароля — только токен. В реальном времени показывает все действия.</p>
+              <p className="text-xs text-muted-foreground">Без логина/пароля — только токен. В реальном времен�� показывает все действия.</p>
             </div>
           </div>
           <div className="text-xs text-muted-foreground">Создано для: Дамир Садыков</div>
@@ -393,7 +393,7 @@ export default function Index() {
                     <Button type="button" variant="secondary" onClick={pasteFromClipboard}>Вставить из буфера</Button>
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {tokenOk ? "Токен ��аспознан и готов к использованию" : "Токен не распознан"}
+                    {tokenOk ? "Токен распознан и готов к использованию" : "Токен не распознан"}
                   </div>
                 </div>
 
@@ -412,7 +412,7 @@ export default function Index() {
                       <div className="grid gap-3">
                         <div className="grid gap-2">
                           <Label>Client ID (ID приложения VK)</Label>
-                          <Input placeholder="Например: 1234567" value={oauthClientId} onChange={(e) => setOauthClientId(e.target.value)} />
+                          <Input placeholder="Напри��ер: 1234567" value={oauthClientId} onChange={(e) => setOauthClientId(e.target.value)} />
                         </div>
                         <div className="grid gap-2">
                           <Label>Права (scope)</Label>
@@ -540,7 +540,7 @@ export default function Index() {
             </CardHeader>
             <CardContent className="grid gap-5">
               <div className="grid gap-2">
-                <Label>Количество друзей у кандида��а</Label>
+                <Label>Количество друзей у кандидата</Label>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="grid gap-1">
                     <Label className="text-xs">Минимум</Label>
@@ -561,7 +561,7 @@ export default function Index() {
               </div>
 
               <div className="grid gap-2">
-                <Label>Доп. задерж��а между заявками (мс)</Label>
+                <Label>Доп. задержка между заявками (мс)</Label>
                 <Input type="number" value={extraDelayMs} onChange={(e) => setExtraDelayMs(parseInt(e.target.value || "0", 10))} />
                 <div className="text-xs text-muted-foreground">Фактическая задержка: {effectiveDelay} мс</div>
               </div>
@@ -584,7 +584,7 @@ export default function Index() {
 
           <Card className="h-[420px]">
             <CardHeader>
-              <CardTitle>Лог действи��</CardTitle>
+              <CardTitle>Лог действий</CardTitle>
               <CardDescription>Поиск, отправка заявок и ошибки в реальном времени.</CardDescription>
             </CardHeader>
             <CardContent>
