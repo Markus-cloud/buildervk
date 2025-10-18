@@ -195,7 +195,12 @@ export default function Index() {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       const items = (data.items as VKUser[]) || [];
-      nextOffsetRef.current += items.length;
+      // Advance offset using server-provided vk_offset when available to avoid re-scanning same VK pages
+      if (data.meta && typeof data.meta.vk_offset === 'number') {
+        nextOffsetRef.current = data.meta.vk_offset;
+      } else {
+        nextOffsetRef.current += items.length;
+      }
       addLog(`Найдено кандидатов: ${items.length}`);
       return items;
     } catch (e: any) {
@@ -322,7 +327,7 @@ export default function Index() {
           <Card>
             <CardHeader>
               <CardTitle>Токен VK API</CardTitle>
-              <CardDescription>Вставьте ссылку с токеном или сам то��ен — он будет распознан автоматически.</CardDescription>
+              <CardDescription>Вставьте ссылку с токеном или сам токен — он будет распознан автоматически.</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-3">
@@ -481,7 +486,7 @@ export default function Index() {
 
           <Card className="h-[420px]">
             <CardHeader>
-              <CardTitle>Лог действий</CardTitle>
+              <CardTitle>Лог действи��</CardTitle>
               <CardDescription>Поиск, отправка заявок и ошибки в реальном времени.</CardDescription>
             </CardHeader>
             <CardContent>
