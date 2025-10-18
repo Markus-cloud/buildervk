@@ -56,39 +56,99 @@ export const searchUsers: RequestHandler = async (req, res) => {
       age_from,
       q,
       online,
-      count = 50,
-      offset = 0,
+      // Server-side filters
+      min_friends,
+      max_friends,
+      profession,
+      desired_count = 50,
+      max_pages = 10,
+      per_page = 50,
     } = req.body as {
       city_id?: number;
       age_from?: number;
       q?: string;
       online?: boolean;
-      count?: number;
-      offset?: number;
+      min_friends?: number;
+      max_friends?: number;
+      profession?: string;
+      desired_count?: number;
+      max_pages?: number;
+      per_page?: number;
     };
 
-    const response = await vkCall(
-      "users.search",
-      {
-        city: city_id,
-        age_from,
-        q,
-        online: online ? 1 : 0,
-        has_photo: 1,
-        count,
-        offset,
-        fields: [
-          "city",
-          "bdate",
-          "counters",
-          "occupation",
-          "online",
-          "can_send_friend_request",
-        ].join(","),
-      },
-      token,
-    );
-    res.json({ items: response.items ?? [], count: response.count ?? 0 });
+    const collected: any[] = [];
+    let offset = 0;
+    let calls = 0;
+
+    function ageFromBdate(bdate?: string): number | null {
+      if (!bdate) return null;
+      const parts = bdate.split('.');
+      if (parts.length !== 3) return null;
+      const y = parseInt(parts[2], 10);
+      if (!y) return null;
+      const dob = new Date(y, parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
+      const age = new Date(Date.now() - dob.getTime()).getUTCFullYear() - 1970;
+      return age;
+    }
+
+    function passesFilters(u: any) {
+      if (online && u.online !== 1) return false;
+      if (u.can_send_friend_request === false) return false;
+      const friends = u.counters?.friends ?? 0;
+      if (typeof min_friends === 'number' && friends < min_friends) return false;
+      if (typeof max_friends === 'number' && friends > max_friends) return false;
+      if (typeof age_from === 'number') {
+        const age = ageFromBdate(u.bdate);
+        if (age !== null && age < age_from) return false;
+      }
+      if (profession && profession.trim()) {
+        const occ = (u.occupation?.name || u.occupation?.type || '').toLowerCase();
+        if (!occ.includes(profession.trim().toLowerCase())) return false;
+      }
+      return true;
+    }
+
+    for (let page = 0; page < Math.max(1, max_pages) && collected.length < desired_count; page++) {
+      const toFetch = Math.min(per_page, desired_count - collected.length);
+      const response = await vkCall(
+        'users.search',
+        {
+          city: city_id,
+          age_from,
+          q,
+          online: online ? 1 : 0,
+          has_photo: 1,
+          count: per_page,
+          offset,
+          fields: [
+            'city',
+            'bdate',
+            'counters',
+            'occupation',
+            'online',
+            'can_send_friend_request',
+          ].join(','),
+        },
+        token,
+      );
+
+      calls++;
+      const items = response.items ?? [];
+      if (!items.length) break;
+
+      for (const it of items) {
+        if (passesFilters(it)) {
+          collected.push(it);
+          if (collected.length >= desired_count) break;
+        }
+      }
+
+      offset += items.length;
+      // If fewer items returned than requested, stop early
+      if (items.length < per_page) break;
+    }
+
+    res.json({ items: collected, count: collected.length, meta: { vk_calls: calls } });
   } catch (err: any) {
     res.status(400).json({ error: err.message ?? String(err) });
   }
