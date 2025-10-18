@@ -2,16 +2,43 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
-interface VKCity { id: number; title: string }
+interface VKCity {
+  id: number;
+  title: string;
+}
 interface VKUser {
   id: number;
   first_name: string;
@@ -108,9 +135,12 @@ export default function Index() {
     async (q: string) => {
       if (!token) return setCities([]);
       try {
-        const res = await fetch(`/api/vk/cities?q=${encodeURIComponent(q)}&country_id=1`, {
-          headers: { "x-vk-token": token },
-        });
+        const res = await fetch(
+          `/api/vk/cities?q=${encodeURIComponent(q)}&country_id=1`,
+          {
+            headers: { "x-vk-token": token },
+          },
+        );
         const data = await res.json();
         if (data.items) setCities(data.items as VKCity[]);
       } catch (e: any) {
@@ -140,26 +170,33 @@ export default function Index() {
     "Ростов-на-Дону",
   ];
 
-  const fetchCityByName = useCallback(async (name: string) => {
-    if (!token) return;
-    try {
-      const res = await fetch(`/api/vk/cities?q=${encodeURIComponent(name)}&country_id=1`, {
-        headers: { "x-vk-token": token },
-      });
-      const data = await res.json();
-      if (data.items && data.items.length) {
-        setCity(data.items[0] as VKCity);
-        addLog(`Город выбран: ${data.items[0].title}`);
-      } else {
-        addLog(`Город не найден: ${name}`);
+  const fetchCityByName = useCallback(
+    async (name: string) => {
+      if (!token) return;
+      try {
+        const res = await fetch(
+          `/api/vk/cities?q=${encodeURIComponent(name)}&country_id=1`,
+          {
+            headers: { "x-vk-token": token },
+          },
+        );
+        const data = await res.json();
+        if (data.items && data.items.length) {
+          setCity(data.items[0] as VKCity);
+          addLog(`Город выбран: ${data.items[0].title}`);
+        } else {
+          addLog(`Город не найден: ${name}`);
+        }
+      } catch (e: any) {
+        addLog(`Ошибка поиска города: ${e.message ?? e}`);
       }
-    } catch (e: any) {
-      addLog(`Ошибка поиска города: ${e.message ?? e}`);
-    }
-  }, [token, addLog]);
+    },
+    [token, addLog],
+  );
 
   const effectiveDelay = useMemo(() => {
-    const perHourDelay = requestsPerHour > 0 ? Math.floor(3600_000 / requestsPerHour) : 0;
+    const perHourDelay =
+      requestsPerHour > 0 ? Math.floor(3600_000 / requestsPerHour) : 0;
     return Math.max(perHourDelay, extraDelayMs);
   }, [requestsPerHour, extraDelayMs]);
 
@@ -168,7 +205,10 @@ export default function Index() {
     const scope = oauthScopes.trim() || "friends,offline";
     const redirect = "https://oauth.vk.com/blank.html";
     if (!id) {
-      window.open("https://dev.vk.com/ru/api/access-token/implicit-flow-user", "_blank");
+      window.open(
+        "https://dev.vk.com/ru/api/access-token/implicit-flow-user",
+        "_blank",
+      );
       return;
     }
     const url = new URL("https://oauth.vk.com/authorize");
@@ -205,68 +245,95 @@ export default function Index() {
   const [errorCount, setErrorCount] = useState(0);
   const [vkCalls, setVkCalls] = useState(0);
 
-  const fetchBatch = useCallback(async (opts?: { desired_count?: number; max_pages?: number; per_page?: number }) => {
-    if (!token) return [] as VKUser[];
-    const body: any = {
-      city_id: city?.id,
-      age_from: minAge || undefined,
-      q: undefined as string | undefined,
-      online: onlyOnline,
-      // server-side filters to avoid endless non-matching searches
-      min_friends: minFriends || undefined,
-      max_friends: maxFriends || undefined,
-      profession: profession || undefined,
-      desired_count: opts?.desired_count ?? 50,
-      max_pages: opts?.max_pages ?? 8,
-      per_page: opts?.per_page ?? 50,
-      offset: nextOffsetRef.current,
-    };
-    try {
-      const res = await fetch("/api/vk/search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-vk-token": token },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      // accumulate vk_calls
-      if (data.meta && typeof data.meta.vk_calls === 'number') {
-        setVkCalls((v) => v + data.meta.vk_calls);
+  const fetchBatch = useCallback(
+    async (opts?: {
+      desired_count?: number;
+      max_pages?: number;
+      per_page?: number;
+    }) => {
+      if (!token) return [] as VKUser[];
+      const body: any = {
+        city_id: city?.id,
+        age_from: minAge || undefined,
+        q: undefined as string | undefined,
+        online: onlyOnline,
+        // server-side filters to avoid endless non-matching searches
+        min_friends: minFriends || undefined,
+        max_friends: maxFriends || undefined,
+        profession: profession || undefined,
+        desired_count: opts?.desired_count ?? 50,
+        max_pages: opts?.max_pages ?? 8,
+        per_page: opts?.per_page ?? 50,
+        offset: nextOffsetRef.current,
+      };
+      try {
+        const res = await fetch("/api/vk/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-vk-token": token },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        // accumulate vk_calls
+        if (data.meta && typeof data.meta.vk_calls === "number") {
+          setVkCalls((v) => v + data.meta.vk_calls);
+        }
+        const items = (data.items as VKUser[]) || [];
+        // Advance offset using server-provided vk_offset when available to avoid re-scanning same VK pages
+        if (data.meta && typeof data.meta.vk_offset === "number") {
+          nextOffsetRef.current = data.meta.vk_offset;
+        } else {
+          nextOffsetRef.current += items.length;
+        }
+        addLog(`Найдено кандидатов: ${items.length}`);
+        // Log VK calls for visibility
+        if (data.meta) addLog(`VK calls: ${data.meta.vk_calls ?? 0}`);
+        return items;
+      } catch (e: any) {
+        addLog(`Ошибка поиска: ${e.message ?? e}`);
+        return [] as VKUser[];
       }
-      const items = (data.items as VKUser[]) || [];
-      // Advance offset using server-provided vk_offset when available to avoid re-scanning same VK pages
-      if (data.meta && typeof data.meta.vk_offset === 'number') {
-        nextOffsetRef.current = data.meta.vk_offset;
-      } else {
-        nextOffsetRef.current += items.length;
-      }
-      addLog(`Найдено кандидатов: ${items.length}`);
-      // Log VK calls for visibility
-      if (data.meta) addLog(`VK calls: ${data.meta.vk_calls ?? 0}`);
-      return items;
-    } catch (e: any) {
-      addLog(`Ошибка поиска: ${e.message ?? e}`);
-      return [] as VKUser[];
-    }
-  }, [token, city?.id, minAge, onlyOnline, minFriends, maxFriends, profession, addLog]);
+    },
+    [
+      token,
+      city?.id,
+      minAge,
+      onlyOnline,
+      minFriends,
+      maxFriends,
+      profession,
+      addLog,
+    ],
+  );
 
   const candidatePasses = useCallback(
     (u: VKUser) => {
       const age = computeAge(u.bdate);
       if (minAge && age !== null && age < minAge) return false;
       if (onlyOnline && u.online !== 1) return false;
-      const f = typeof u.counters?.friends === 'number' ? u.counters!.friends : undefined;
-      if (typeof f === 'number') {
+      const f =
+        typeof u.counters?.friends === "number"
+          ? u.counters!.friends
+          : undefined;
+      if (typeof f === "number") {
         if (minFriends && f < minFriends) return false;
         if (maxFriends && f > maxFriends) return false;
       }
       if (profession.trim()) {
         const p = profession.trim().toLowerCase();
-        const occ = (u.occupation?.name || u.occupation?.type || "").toLowerCase();
+        const occ = (
+          u.occupation?.name ||
+          u.occupation?.type ||
+          ""
+        ).toLowerCase();
         if (!occ.includes(p)) return false;
       }
       // normalize can_send_friend_request: accept 1/true, reject 0/false
-      if (u.can_send_friend_request === false || u.can_send_friend_request === 0) return false;
+      if (
+        u.can_send_friend_request === false ||
+        u.can_send_friend_request === 0
+      )
+        return false;
       return true;
     },
     [minAge, onlyOnline, minFriends, maxFriends, profession],
@@ -283,7 +350,9 @@ export default function Index() {
         });
         const data = await res.json();
         if (data.error) throw new Error(data.error);
-        addLog(`Заявка отправлена: ${user.first_name} ${user.last_name} (id${user.id})`);
+        addLog(
+          `Заявка отправлена: ${user.first_name} ${user.last_name} (id${user.id})`,
+        );
         setSuccessCount((s) => s + 1);
         return true;
       } catch (e: any) {
@@ -317,8 +386,14 @@ export default function Index() {
         // If we've had several empty fetches, widen search parameters
         let items: VKUser[] = [];
         if (consecutiveEmptyFetches.current >= 3) {
-          addLog("Мало кандидатов — расширяю поиск (временно увеличиваю страницы/количество)");
-          items = await fetchBatch({ desired_count: 100, max_pages: 20, per_page: 100 });
+          addLog(
+            "Мало кандидатов — расширяю поиск (временно увеличиваю страницы/количество)",
+          );
+          items = await fetchBatch({
+            desired_count: 100,
+            max_pages: 20,
+            per_page: 100,
+          });
         } else {
           items = await fetchBatch();
         }
@@ -361,13 +436,22 @@ export default function Index() {
       <header className="border-b bg-card/60 backdrop-blur supports-[backdrop-filter]:bg-card/40">
         <div className="container mx-auto flex items-center justify-between py-4">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg bg-primary text-primary-foreground grid place-items-center font-extrabold">VK</div>
+            <div className="h-9 w-9 rounded-lg bg-primary text-primary-foreground grid place-items-center font-extrabold">
+              VK
+            </div>
             <div>
-              <h1 className="text-lg font-semibold leading-tight">Автоматизация добавления друзей VK</h1>
-              <p className="text-xs text-muted-foreground">Без логина/пароля — только токен. В реальном времен�� показывает все действия.</p>
+              <h1 className="text-lg font-semibold leading-tight">
+                Автоматизация добавления друзей VK
+              </h1>
+              <p className="text-xs text-muted-foreground">
+                Без логина/пароля — только токен. В реальном времен�� показывает
+                все действия.
+              </p>
             </div>
           </div>
-          <div className="text-xs text-muted-foreground">Создано для: Дамир Садыков</div>
+          <div className="text-xs text-muted-foreground">
+            Создано для: Дамир Садыков
+          </div>
         </div>
       </header>
 
@@ -376,7 +460,10 @@ export default function Index() {
           <Card>
             <CardHeader>
               <CardTitle>Токен VK API</CardTitle>
-              <CardDescription>Вставьте ссылку с токеном или сам токен — он будет распознан автоматически.</CardDescription>
+              <CardDescription>
+                Вставьте ссылку с токеном или сам токен — он будет распознан
+                автоматически.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-3">
@@ -390,37 +477,69 @@ export default function Index() {
                       onChange={(e) => setTokenInput(e.target.value)}
                       className={cn(tokenOk ? "ring-1 ring-primary/50" : "")}
                     />
-                    <Button type="button" variant="secondary" onClick={pasteFromClipboard}>Вставить из буфера</Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={pasteFromClipboard}
+                    >
+                      Вставить из буфера
+                    </Button>
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {tokenOk ? "Токен распознан и готов к использованию" : "Токен не распознан"}
+                    {tokenOk
+                      ? "Токен распознан и готов к использованию"
+                      : "Токен не распознан"}
                   </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button type="button" variant="outline">Получить токен</Button>
+                      <Button type="button" variant="outline">
+                        Получить токен
+                      </Button>
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle>Получение токена (Implicit Flow)</DialogTitle>
+                        <DialogTitle>
+                          Получение токена (Implicit Flow)
+                        </DialogTitle>
                         <DialogDescription>
-                          Введите ID вашего VK приложения, выберите пра��а и откройте страницу авторизации. После выдачи токена скопируйте URL из адресной строки.
+                          Введите ID вашего VK приложения, выберите пра��а и
+                          откройте страницу авторизации. После выдачи токена
+                          скопируйте URL из адресной строки.
                         </DialogDescription>
                       </DialogHeader>
                       <div className="grid gap-3">
                         <div className="grid gap-2">
                           <Label>Client ID (ID приложения VK)</Label>
-                          <Input placeholder="Напри��ер: 1234567" value={oauthClientId} onChange={(e) => setOauthClientId(e.target.value)} />
+                          <Input
+                            placeholder="Напри��ер: 1234567"
+                            value={oauthClientId}
+                            onChange={(e) => setOauthClientId(e.target.value)}
+                          />
                         </div>
                         <div className="grid gap-2">
                           <Label>Права (scope)</Label>
-                          <Input placeholder="friends,offline" value={oauthScopes} onChange={(e) => setOauthScopes(e.target.value)} />
+                          <Input
+                            placeholder="friends,offline"
+                            value={oauthScopes}
+                            onChange={(e) => setOauthScopes(e.target.value)}
+                          />
                         </div>
                         <div className="flex gap-2">
                           <Button onClick={openOauth}>Открыть VK OAuth</Button>
-                          <Button variant="secondary" onClick={() => window.open("https://dev.vk.com/ru/api/access-token/implicit-flow-user", "_blank")}>Инструкция VK</Button>
+                          <Button
+                            variant="secondary"
+                            onClick={() =>
+                              window.open(
+                                "https://dev.vk.com/ru/api/access-token/implicit-flow-user",
+                                "_blank",
+                              )
+                            }
+                          >
+                            Инструкция VK
+                          </Button>
                         </div>
                       </div>
                     </DialogContent>
@@ -433,7 +552,9 @@ export default function Index() {
           <Card>
             <CardHeader>
               <CardTitle>Фильтры поиска</CardTitle>
-              <CardDescription>Уточните параметры поиска кандидатов.</CardDescription>
+              <CardDescription>
+                Уточните параметры поиска кандидатов.
+              </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-5">
               <div className="grid gap-2">
@@ -447,51 +568,61 @@ export default function Index() {
                   </PopoverTrigger>
                   <PopoverContent className="p-0" align="start">
                     <Command>
-                      <CommandInput placeholder="Начните вводить город..." value={cityQuery} onValueChange={setCityQuery} />
+                      <CommandInput
+                        placeholder="Начните вводить город..."
+                        value={cityQuery}
+                        onValueChange={setCityQuery}
+                      />
                       <CommandList>
                         <CommandEmpty>Ничего не найдено</CommandEmpty>
                         <CommandGroup>
-                          {cities.length > 0 ? (
-                            cities.map((c) => (
-                              <CommandItem
-                                key={c.id}
-                                value={String(c.id)}
-                                onSelect={() => {
-                                  addLog(`Город выбран: ${c.title}`);
-                                  setCity(c);
-                                  setCityQuery("");
-                                }}
-                                onPointerDown={() => {
-                                  addLog(`Город выбран (pointer): ${c.title}`);
-                                  setCity(c);
-                                  setCityQuery("");
-                                }}
-                              >
-                                {c.title}
-                              </CommandItem>
-                            ))
-                          ) : (
-                            popularCities.map((name) => (
-                              <CommandItem
-                                key={name}
-                                value={name}
-                                onSelect={() => {
-                                  addLog(`Популярный город выбран: ${name}`);
-                                  fetchCityByName(name);
-                                  setCityQuery("");
-                                }}
-                                onPointerDown={() => {
-                                  addLog(`Популярный город (pointer): ${name}`);
-                                  fetchCityByName(name);
-                                  setCityQuery("");
-                                }}
-                              >
-                                {name}
-                              </CommandItem>
-                            ))
-                          )}
+                          {cities.length > 0
+                            ? cities.map((c) => (
+                                <CommandItem
+                                  key={c.id}
+                                  value={String(c.id)}
+                                  onSelect={() => {
+                                    addLog(`Город выбран: ${c.title}`);
+                                    setCity(c);
+                                    setCityQuery("");
+                                  }}
+                                  onPointerDown={() => {
+                                    addLog(
+                                      `Город выбран (pointer): ${c.title}`,
+                                    );
+                                    setCity(c);
+                                    setCityQuery("");
+                                  }}
+                                >
+                                  {c.title}
+                                </CommandItem>
+                              ))
+                            : popularCities.map((name) => (
+                                <CommandItem
+                                  key={name}
+                                  value={name}
+                                  onSelect={() => {
+                                    addLog(`Популярный город выбран: ${name}`);
+                                    fetchCityByName(name);
+                                    setCityQuery("");
+                                  }}
+                                  onPointerDown={() => {
+                                    addLog(
+                                      `Популярный город (pointer): ${name}`,
+                                    );
+                                    fetchCityByName(name);
+                                    setCityQuery("");
+                                  }}
+                                >
+                                  {name}
+                                </CommandItem>
+                              ))}
                         </CommandGroup>
-                        <div className="px-3 pt-2 text-xs text-muted-foreground">Если нужный город не найден — начните ввод и попробуйте другой вариант написания (например «Санкт-Петербург», «СПБ»).</div>
+                        <div className="px-3 pt-2 text-xs text-muted-foreground">
+                          Если нужный город не найден — начните ввод и
+                          попробуйте другой вариант написания (например
+                          «Санкт-Петербург», «СПБ»).
+                        </div>
                       </CommandList>
                     </Command>
                   </PopoverContent>
@@ -500,18 +631,33 @@ export default function Index() {
 
               <div className="grid gap-2">
                 <Label>Минимальный возраст: {minAge}+ </Label>
-                <Slider value={[minAge]} min={14} max={60} step={1} onValueChange={(v) => setMinAge(v[0])} />
+                <Slider
+                  value={[minAge]}
+                  min={14}
+                  max={60}
+                  step={1}
+                  onValueChange={(v) => setMinAge(v[0])}
+                />
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="profession">Профессия (поиск по Occupation)</Label>
-                <Input id="profession" placeholder="на��ример: дизайнер" value={profession} onChange={(e) => setProfession(e.target.value)} />
+                <Label htmlFor="profession">
+                  Профессия (поиск по Occupation)
+                </Label>
+                <Input
+                  id="profession"
+                  placeholder="на��ример: дизайнер"
+                  value={profession}
+                  onChange={(e) => setProfession(e.target.value)}
+                />
               </div>
 
               <div className="flex items-center justify-between">
                 <div className="grid gap-1">
                   <Label>Только онлайн</Label>
-                  <span className="text-xs text-muted-foreground">Искать только пользователей �� сети</span>
+                  <span className="text-xs text-muted-foreground">
+                    Искать только пользователей �� сети
+                  </span>
                 </div>
                 <Switch checked={onlyOnline} onCheckedChange={setOnlyOnline} />
               </div>
@@ -521,12 +667,23 @@ export default function Index() {
           <Card>
             <CardHeader>
               <CardTitle>Управление</CardTitle>
-              <CardDescription>Запустите или остановите отправку заявок в друзья.</CardDescription>
+              <CardDescription>
+                Запустите или остановите отправку заявок в друзья.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-3">
-                <Button onClick={start} disabled={running} className="min-w-28">Старт</Button>
-                <Button onClick={stop} variant="secondary" disabled={!running} className="min-w-28">Стоп</Button>
+                <Button onClick={start} disabled={running} className="min-w-28">
+                  Старт
+                </Button>
+                <Button
+                  onClick={stop}
+                  variant="secondary"
+                  disabled={!running}
+                  className="min-w-28"
+                >
+                  Стоп
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -536,7 +693,9 @@ export default function Index() {
           <Card>
             <CardHeader>
               <CardTitle>Настройки скорости</CardTitle>
-              <CardDescription>Ограничения для безопасности аккаунта.</CardDescription>
+              <CardDescription>
+                Ограничения для безопасности аккаунта.
+              </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-5">
               <div className="grid gap-2">
@@ -544,11 +703,23 @@ export default function Index() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="grid gap-1">
                     <Label className="text-xs">Минимум</Label>
-                    <Input type="number" value={minFriends} onChange={(e) => setMinFriends(parseInt(e.target.value || "0", 10))} />
+                    <Input
+                      type="number"
+                      value={minFriends}
+                      onChange={(e) =>
+                        setMinFriends(parseInt(e.target.value || "0", 10))
+                      }
+                    />
                   </div>
                   <div className="grid gap-1">
                     <Label className="text-xs">Максимум</Label>
-                    <Input type="number" value={maxFriends} onChange={(e) => setMaxFriends(parseInt(e.target.value || "0", 10))} />
+                    <Input
+                      type="number"
+                      value={maxFriends}
+                      onChange={(e) =>
+                        setMaxFriends(parseInt(e.target.value || "0", 10))
+                      }
+                    />
                   </div>
                 </div>
               </div>
@@ -557,13 +728,27 @@ export default function Index() {
 
               <div className="grid gap-2">
                 <Label>Заявок в час</Label>
-                <Input type="number" value={requestsPerHour} onChange={(e) => setRequestsPerHour(parseInt(e.target.value || "0", 10))} />
+                <Input
+                  type="number"
+                  value={requestsPerHour}
+                  onChange={(e) =>
+                    setRequestsPerHour(parseInt(e.target.value || "0", 10))
+                  }
+                />
               </div>
 
               <div className="grid gap-2">
                 <Label>Доп. задержка между заявками (мс)</Label>
-                <Input type="number" value={extraDelayMs} onChange={(e) => setExtraDelayMs(parseInt(e.target.value || "0", 10))} />
-                <div className="text-xs text-muted-foreground">Фактическая задержка: {effectiveDelay} мс</div>
+                <Input
+                  type="number"
+                  value={extraDelayMs}
+                  onChange={(e) =>
+                    setExtraDelayMs(parseInt(e.target.value || "0", 10))
+                  }
+                />
+                <div className="text-xs text-muted-foreground">
+                  Фактическая задержка: {effectiveDelay} мс
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -575,9 +760,15 @@ export default function Index() {
             </CardHeader>
             <CardContent>
               <div className="grid gap-2 text-sm">
-                <div>Успешных заявок: <strong>{successCount}</strong></div>
-                <div>Ошибок: <strong>{errorCount}</strong></div>
-                <div>VK API вызовов: <strong>{vkCalls}</strong></div>
+                <div>
+                  Успешных заявок: <strong>{successCount}</strong>
+                </div>
+                <div>
+                  Ошибок: <strong>{errorCount}</strong>
+                </div>
+                <div>
+                  VK API вызовов: <strong>{vkCalls}</strong>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -585,12 +776,19 @@ export default function Index() {
           <Card className="h-[420px]">
             <CardHeader>
               <CardTitle>Лог действий</CardTitle>
-              <CardDescription>Поиск, отправка заявок и ошибки в реальном времени.</CardDescription>
+              <CardDescription>
+                Поиск, отправка заявок и ошибки в реальном времени.
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div ref={logsRef} className="h-72 overflow-y-auto rounded-md border bg-card px-3 py-2 text-sm font-mono">
+              <div
+                ref={logsRef}
+                className="h-72 overflow-y-auto rounded-md border bg-card px-3 py-2 text-sm font-mono"
+              >
                 {logs.length === 0 ? (
-                  <div className="text-muted-foreground">Здесь будут отображаться действия бота...</div>
+                  <div className="text-muted-foreground">
+                    Здесь будут отображаться действия бота...
+                  </div>
                 ) : (
                   <div className="space-y-1">
                     {logs.map((l, i) => (
@@ -600,14 +798,24 @@ export default function Index() {
                 )}
               </div>
               <div className="mt-3 flex gap-2">
-                <Button variant="secondary" onClick={() => setLogs([])}>Очистить лог</Button>
-                <Button variant="outline" onClick={() => navigator.clipboard.writeText(logs.join("\n"))}>Скопировать</Button>
+                <Button variant="secondary" onClick={() => setLogs([])}>
+                  Очистить лог
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => navigator.clipboard.writeText(logs.join("\n"))}
+                >
+                  Скопировать
+                </Button>
               </div>
             </CardContent>
           </Card>
         </div>
       </main>
-      <footer className="py-6 text-center text-xs text-muted-foreground">Только для образовательных целей. Соблюдайте ��равила VK и избегайте спама.</footer>
+      <footer className="py-6 text-center text-xs text-muted-foreground">
+        Только для образовательных целей. Соблюдайте ��равила VK и избегайте
+        спама.
+      </footer>
     </div>
   );
 }
