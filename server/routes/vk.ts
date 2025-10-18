@@ -123,19 +123,21 @@ export const searchUsers: RequestHandler = async (req, res) => {
         u.counters && typeof u.counters.friends === "number"
           ? u.counters.friends
           : undefined;
-      if (
-        typeof min_friends === "number" &&
-        typeof friends === "number" &&
-        friends < min_friends
-      )
-        return false;
-      if (
-        typeof max_friends === "number" &&
-        typeof friends === "number" &&
-        friends > max_friends
-      )
-        return false;
-      // If friend counters are missing, treat as unknown and allow (do not reject)
+      // If friend count filter is set and we have friend data, check it strictly
+      if (typeof min_friends === "number" || typeof max_friends === "number") {
+        // If we don't have friend data, reject (can't verify filter)
+        if (typeof friends !== "number") return false;
+        if (
+          typeof min_friends === "number" &&
+          friends < min_friends
+        )
+          return false;
+        if (
+          typeof max_friends === "number" &&
+          friends > max_friends
+        )
+          return false;
+      }
       if (typeof age_from === "number") {
         const age = ageFromBdate(u.bdate);
         if (age !== null && age < age_from) return false;
