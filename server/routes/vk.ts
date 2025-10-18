@@ -127,15 +127,9 @@ export const searchUsers: RequestHandler = async (req, res) => {
       if (typeof min_friends === "number" || typeof max_friends === "number") {
         // Only enforce if we have friend data, otherwise accept (better than 0 results)
         if (typeof friends === "number") {
-          if (
-            typeof min_friends === "number" &&
-            friends < min_friends
-          )
+          if (typeof min_friends === "number" && friends < min_friends)
             return false;
-          if (
-            typeof max_friends === "number" &&
-            friends > max_friends
-          )
+          if (typeof max_friends === "number" && friends > max_friends)
             return false;
         }
         // If no friend data, allow it (some profiles don't expose this)
@@ -227,16 +221,23 @@ export const searchUsers: RequestHandler = async (req, res) => {
               // Log why this user was rejected (for debugging)
               const reasons = [];
               if (online && det.online !== 1) reasons.push("not_online");
-              if (det.can_send_friend_request === false) reasons.push("cant_send_request");
+              if (det.can_send_friend_request === false)
+                reasons.push("cant_send_request");
               const friends = det.counters?.friends;
               if (typeof friends === "number") {
-                if (typeof min_friends === "number" && friends < min_friends) reasons.push(`friends<${min_friends}`);
-                if (typeof max_friends === "number" && friends > max_friends) reasons.push(`friends>${max_friends}`);
+                if (typeof min_friends === "number" && friends < min_friends)
+                  reasons.push(`friends<${min_friends}`);
+                if (typeof max_friends === "number" && friends > max_friends)
+                  reasons.push(`friends>${max_friends}`);
               } else {
-                if (typeof min_friends === "number" || typeof max_friends === "number") reasons.push("no_friends_data");
+                if (
+                  typeof min_friends === "number" ||
+                  typeof max_friends === "number"
+                )
+                  reasons.push("no_friends_data");
               }
               if (rawSamples.length < 5) {
-                rawSamples.push({...det, _rejected_reasons: reasons});
+                rawSamples.push({ ...det, _rejected_reasons: reasons });
               }
             }
           }

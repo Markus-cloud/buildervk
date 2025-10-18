@@ -321,7 +321,9 @@ export default function Index() {
           const sample = data.meta.raw_samples[0];
           const reasons = (sample as any)?._rejected_reasons || [];
           if (reasons.length > 0) {
-            addLog(`🔍 Отклонены: ${sample.first_name} ${sample.last_name} (${reasons.join(", ")})`);
+            addLog(
+              `🔍 Отклонены: ${sample.first_name} ${sample.last_name} (${reasons.join(", ")})`,
+            );
           }
         }
         return items;
@@ -463,7 +465,8 @@ export default function Index() {
         if (city) addLog(`  ✓ Город: ${city.title}`);
         else addLog(`  ⚠️ Город НЕ выбран`);
         if (minAge) addLog(`  ✓ Мин. возраст: ${minAge}+`);
-        if (minFriends || maxFriends) addLog(`  ✓ Друзья: ${minFriends || 0}-${maxFriends || "∞"}`);
+        if (minFriends || maxFriends)
+          addLog(`  ✓ Друзья: ${minFriends || 0}-${maxFriends || "∞"}`);
         if (profession) addLog(`  ✓ Профессия: ${profession}`);
         if (onlyOnline) addLog(`  ✓ Только онлайн`);
         // Wait a bit and loop — consecutiveEmptyFetches influences next fetch
