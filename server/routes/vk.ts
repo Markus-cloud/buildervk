@@ -77,7 +77,8 @@ export const searchUsers: RequestHandler = async (req, res) => {
     };
 
     const collected: any[] = [];
-    let offset = 0;
+    // Use client-provided VK offset to continue scanning where client left off
+    let offset = Number((req.body && (req.body.offset as number)) ?? 0);
     let calls = 0;
 
     function ageFromBdate(bdate?: string): number | null {
@@ -148,7 +149,7 @@ export const searchUsers: RequestHandler = async (req, res) => {
       if (items.length < per_page) break;
     }
 
-    res.json({ items: collected, count: collected.length, meta: { vk_calls: calls } });
+    res.json({ items: collected, count: collected.length, meta: { vk_calls: calls, vk_offset: offset } });
   } catch (err: any) {
     res.status(400).json({ error: err.message ?? String(err) });
   }
