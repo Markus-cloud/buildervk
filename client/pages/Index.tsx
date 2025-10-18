@@ -201,8 +201,9 @@ export default function Index() {
   const nextOffsetRef = useRef(0);
   const queueRef = useRef<VKUser[]>([]);
   const [queueState, setQueueState] = useState<VKUser[]>([]);
-  const [rawResponse, setRawResponse] = useState<any | null>(null);
-  const [rawSample, setRawSample] = useState<any | null>(null);
+  const [successCount, setSuccessCount] = useState(0);
+  const [errorCount, setErrorCount] = useState(0);
+  const [vkCalls, setVkCalls] = useState(0);
 
   const fetchBatch = useCallback(async (opts?: { desired_count?: number; max_pages?: number; per_page?: number }) => {
     if (!token) return [] as VKUser[];
@@ -401,7 +402,7 @@ export default function Index() {
                       <DialogHeader>
                         <DialogTitle>Получение токена (Implicit Flow)</DialogTitle>
                         <DialogDescription>
-                          Введите ID вашего VK приложения, выберите пра��а и откройте страницу авторизации. После выдачи токена скопируйте URL из адресной строки.
+                          Введите ID ваш��го VK приложения, выберите пра��а и откройте страницу авторизации. После выдачи токена скопируйте URL из адресной строки.
                         </DialogDescription>
                       </DialogHeader>
                       <div className="grid gap-3">
